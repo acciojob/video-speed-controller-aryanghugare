@@ -1,79 +1,37 @@
-// Get video
-const video = document.querySelector('.flex');
-const wrapper = document.querySelector('.wrapper');
+// const inputs = document.querySelectorAll('.controls input');
 
-// Remove default controls
-video.controls = false;
+//     function handleUpdate() {
+//       const suffix = this.dataset.sizing || '';
+//       document.documentElement.style.setProperty(`--${this.name}`, this.value + suffix);
+		
+//     }
 
-
-// ---------- Create Controls Container ----------
-const controls = document.createElement('div');
-controls.className = 'controls';
-
-
-// ---------- Play / Pause Button ----------
-const toggle = document.createElement('button');
-toggle.className = 'player__button';
-toggle.textContent = '►';
+//     inputs.forEach(input => input.addEventListener('change', handleUpdate));
+//     inputs.forEach(input => input.addEventListener('mousemove', handleUpdate));
 
 
-// ---------- Progress Bar ----------
-const progress = document.createElement('div');
-progress.className = 'progress';
-
-const progressFilled = document.createElement('div');
-progressFilled.className = 'progress__filled';
-
-progress.appendChild(progressFilled);
+// Get Elements
+const player = document.querySelector('.player');
+const video = player.querySelector('.player__video');
+const toggle = player.querySelector('.toggle');
 
 
-// ---------- Volume Slider ----------
-const volume = document.createElement('input');
-volume.type = 'range';
-volume.min = 0;
-volume.max = 1;
-volume.step = 0.05;
-volume.value = 1;
+const progress = player.querySelector('.progress');
+const progressFilled = player.querySelector('.progress__filled');
+
+const ranges = player.querySelectorAll('.controls input');
+
+const skipButtons = player.querySelectorAll('[data-skip]');
 
 
-// ---------- Speed Slider ----------
-const speed = document.createElement('input');
-speed.type = 'range';
-speed.min = 0.5;
-speed.max = 2;
-speed.step = 0.1;
-speed.value = 1;
+// ---------------- Play / Pause ----------------
 
-
-// ---------- Skip Buttons ----------
-const back = document.createElement('button');
-back.textContent = '« 10s';
-back.dataset.skip = -10;
-
-const forward = document.createElement('button');
-forward.textContent = '25s »';
-forward.dataset.skip = 25;
-
-
-// ---------- Append Controls ----------
-controls.append(
-  toggle,
-  back,
-  forward,
-  progress,
-  volume,
-  speed
-);
-
-wrapper.appendChild(controls);
-
-
-
-// ---------- Functions ----------
-
-// Play / Pause
 function togglePlay() {
-  video.paused ? video.play() : video.pause();
+  if (video.paused) {
+    video.play();
+  } else {
+    video.pause();
+  }
 }
 
 
@@ -83,26 +41,23 @@ function updateButton() {
 }
 
 
-// Skip
+// ---------------- Skip ----------------
+
 function skip() {
   video.currentTime += parseFloat(this.dataset.skip);
 }
 
 
-// Volume & Speed
-function handleRange() {
-  if (this === volume) {
-    video.volume = this.value;
-  }
+// ---------------- Volume & Speed ----------------
 
-  if (this === speed) {
-    video.playbackRate = this.value;
-  }
+function handleRangeUpdate() {
+  video[this.name] = this.value;
 }
 
 
-// Update Progress
-function updateProgress() {
+// ---------------- Progress Bar ----------------
+
+function handleProgress() {
   const percent =
     (video.currentTime / video.duration) * 100;
 
@@ -110,30 +65,43 @@ function updateProgress() {
 }
 
 
-// Click Progress
+// Scrub Video
 function scrub(e) {
-  const time =
+  const scrubTime =
     (e.offsetX / progress.offsetWidth) * video.duration;
 
-  video.currentTime = time;
+  video.currentTime = scrubTime;
 }
 
 
 
-// ---------- Events ----------
+// ---------------- Events ----------------
 
-toggle.addEventListener('click', togglePlay);
+// Play / Pause
 video.addEventListener('click', togglePlay);
+toggle.addEventListener('click', togglePlay);
 
 video.addEventListener('play', updateButton);
 video.addEventListener('pause', updateButton);
 
-back.addEventListener('click', skip);
-forward.addEventListener('click', skip);
 
-volume.addEventListener('input', handleRange);
-speed.addEventListener('input', handleRange);
+// Skip
+skipButtons.forEach(btn =>
+  btn.addEventListener('click', skip)
+);
 
-video.addEventListener('timeupdate', updateProgress);
+
+// Volume & Speed
+ranges.forEach(range =>
+  range.addEventListener('change', handleRangeUpdate)
+);
+
+ranges.forEach(range =>
+  range.addEventListener('mousemove', handleRangeUpdate)
+);
+
+
+// Progress
+video.addEventListener('timeupdate', handleProgress);
 
 progress.addEventListener('click', scrub);
