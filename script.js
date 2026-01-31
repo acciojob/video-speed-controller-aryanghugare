@@ -1,4 +1,3 @@
-// Get Elements
 const player = document.querySelector('.player');
 const video = player.querySelector('.player__video');
 const toggle = player.querySelector('.toggle');
@@ -9,11 +8,10 @@ const progressFilled = player.querySelector('.progress__filled');
 const ranges = player.querySelectorAll('.controls input');
 const skipButtons = player.querySelectorAll('[data-skip]');
 
-let isMouseDown = false;
+let mouseDown = false;
 
 
-// ---------------- Play / Pause ----------------
-
+// Play / Pause
 function togglePlay() {
   if (video.paused) {
     video.play();
@@ -23,32 +21,25 @@ function togglePlay() {
 }
 
 
-// Update Button Icon
+// Update Button
 function updateButton() {
-  if (video.paused) {
-    toggle.textContent = '►';
-  } else {
-    toggle.textContent = '❚ ❚';
-  }
+  toggle.textContent = video.paused ? '►' : '❚ ❚';
 }
 
 
-// ---------------- Skip ----------------
-
+// Skip
 function skip() {
   video.currentTime += Number(this.dataset.skip);
 }
 
 
-// ---------------- Volume & Speed ----------------
-
-function handleRangeUpdate() {
+// Volume & Speed
+function handleRange() {
   video[this.name] = this.value;
 }
 
 
-// ---------------- Progress Bar ----------------
-
+// Progress
 function handleProgress() {
 
   if (!video.duration) return;
@@ -60,59 +51,52 @@ function handleProgress() {
 }
 
 
-// Scrub Video
+// Scrub
 function scrub(e) {
 
-  const scrubTime =
+  const time =
     (e.offsetX / progress.offsetWidth) * video.duration;
 
-  video.currentTime = scrubTime;
+  video.currentTime = time;
 }
 
 
 
-// ---------------- Events ----------------
+// Events
 
-// Play / Pause
 video.addEventListener('click', togglePlay);
 toggle.addEventListener('click', togglePlay);
 
-
-// Button Update
 video.addEventListener('play', updateButton);
 video.addEventListener('pause', updateButton);
 video.addEventListener('loadedmetadata', updateButton);
 
 
-// Skip
 skipButtons.forEach(btn => {
   btn.addEventListener('click', skip);
 });
 
 
-// Volume & Speed
 ranges.forEach(range => {
-  range.addEventListener('input', handleRangeUpdate);
+  range.addEventListener('input', handleRange);
 });
 
 
-// Progress
 video.addEventListener('timeupdate', handleProgress);
 
 
-// Scrubbing (Click + Drag)
 progress.addEventListener('click', scrub);
 
 progress.addEventListener('mousedown', () => {
-  isMouseDown = true;
+  mouseDown = true;
 });
 
 progress.addEventListener('mouseup', () => {
-  isMouseDown = false;
+  mouseDown = false;
 });
 
 progress.addEventListener('mousemove', (e) => {
-  if (isMouseDown) {
+  if (mouseDown) {
     scrub(e);
   }
 });
